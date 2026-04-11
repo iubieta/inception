@@ -27,7 +27,7 @@ Build a little infrastructure with different services using docker
     - Must have 2 users. One of them being the admin 
     but it cannot be named `admin` or similar
 - MariaDB
-> [!NOTE]
+> [!WARNING]
 > - Containers cannot be started with an infinite command
 > - tail -f, bash, sleep inite, while true, etc. are forbidden
 
@@ -35,14 +35,14 @@ Build a little infrastructure with different services using docker
 #### Volumes
 - Wordpress DB
 - Web-files for Wordpress
-> [!NOTE]
+> [!WARNING]
 > - Volumes must be called. They cant be bind-mounts
 > - Volumes must be hosted in /home/user/data directory
 
 #### Network
 - Containers must be linked with a docker network
 - Domain name must point to the local IP of the host and named `user.42.fr`
-> [!NOTE]
+> [!WARNING]
 > - Docker network cant be host, --link or links>
 
 ![Visual scheme](/res/inception_scheme.png)
@@ -160,7 +160,7 @@ sudo usermod -aG docker $USER
 ```
 2. Log out and log back in so that your group membership is re-evaluated.
 
-> [!NOTE]
+> [!WARNING]
 > If you're running Linux in a virtual machine, 
 > it may be necessary to restart the virtual machine for changes to take effect.
 
