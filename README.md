@@ -85,6 +85,13 @@ Project Folder
     su
     sudo visudo
     ```
+    Once in the sudoers config file, copy the root user config line and paste 
+    it with the actual user
+    ```
+    # User privilege specification
+    root    ALL=(ALL:ALL) ALL
+    iubieta ALL=(ALL:ALL) ALL
+    ```
     - SSH:
     ```
     sudo apt install openssh-server
