@@ -189,6 +189,69 @@ sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
 sudo apt install nginx
 ```
 
+### Configuration
+
+#### Control signals (start, stop, reload ...)
+```
+nginx -s signal
+```
+
+Where signal may be one of the following:
+
+```
+stop — fast shutdown
+quit — graceful shutdown
+reload — reloading the configuration file
+reopen — reopening the log files
+```
+
+Changes made in the configuration file will not be applied until the command 
+to reload configuration is sent to nginx or it is restarted. 
+
+```
+nginx -s reload
+```
+
+#### Static content example
+```
+server {
+    location / {
+        root /data/www;
+    }
+
+    location /images/ {
+        root /data;
+    }
+}
+```
+
+#### Simple Proxy Server example
+```
+server {
+    location / {
+        proxy_pass http://localhost:8080/;
+    }
+
+    location ~ \.(gif|jpg|png)$ {
+        root /data/images;
+    }
+}
+```
+
+#### FastCGI Proxying example
+```
+server {
+    location / {
+        fastcgi_pass  localhost:9000;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param QUERY_STRING    $query_string;
+    }
+
+    location ~ \.(gif|jpg|png)$ {
+        root /data/images;
+    }
+}
+```
 
 ## Resources
 - [Oracle VirtualBox](https://www.virtualbox.org/)
