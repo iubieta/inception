@@ -1,0 +1,26 @@
+- [ ] Create and configure each container
+    - [ ] NGINX
+        - [ ] Search and Read Documentation
+        - [ ] Summarize basic info 
+            - [ ] What is NGINX
+            - [ ] Installation process
+            - [ ] Coonfiguration process
+        - [ ] Create the container and configure it
+    - [ ] Wordpress + PHP
+        - [ ] Search and Read Documentation
+        - [ ] Summarize basic info and config proccces
+            - [ ] What is Wordpress
+            - [ ] Installation process
+            - [ ] Coonfiguration process
+            - [ ] What is PHP-FPM
+            - [ ] Installation process
+            - [ ] Coonfiguration process
+            - [ ] Wordpress and PHP correlation
+        - [ ] Create the container and configure it
+    - [ ] MariaDB
+        - [ ] Search and Read Documentation
+        - [ ] Summarize basic info and config proccces
+            - [ ] What is MariaDB
+            - [ ] Installation process
+            - [ ] Coonfiguration process
+        - [ ] Create the container and configure it
