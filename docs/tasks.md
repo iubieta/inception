@@ -2,9 +2,11 @@
     - [ ] NGINX
         - [ ] Search and Read Documentation
         - [ ] Summarize basic info 
-            - [ ] What is NGINX
-            - [ ] Installation process
-            - [ ] Coonfiguration process
+            - [x] What is NGINX
+            - [x] Installation process
+            - [x] Coonfiguration process
+            - [ ] TLS
+            - [ ] Dockerfile
         - [ ] Create the container and configure it
     - [ ] Wordpress + PHP
         - [ ] Search and Read Documentation
