@@ -10,7 +10,10 @@
 3. [Docker setup](#docker)
     1. [Installation](#docker_install)
     2. [Post-installation](#docker_post_install)
-4. [NGINX setup](#nginx)
+4. [Docker usage](#docker_use)
+    1. [Docker basic commands](#docker_cmds)
+    2. [Dockerfiles](#dockerfiles)
+5. [NGINX setup](#nginx)
     1. [Installation](#nginx_install)
     2. [Configuration](#nginx_config)
 5. [Resources](#res)
@@ -188,6 +191,13 @@ You can also run the following command to activate the changes to groups:
 ```
  docker run hello-world
 ```
+
+## Docker usage <a name="docker_use"></a>
+
+### Basic docker commands <a name="docker_cmds"></a>
+
+### Dockerfiles <a name="dockerfiles"></a>
+
 
 ## NGINX Setup <a name="nginx"></a>
 

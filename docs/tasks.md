@@ -1,3 +1,7 @@
+- [ ] Setup VM
+- [ ] Docker
+    - [ ] Setup
+    - [ ] Dockerfiles
 - [ ] Create and configure each container
     - [ ] NGINX
         - [ ] Search and Read Documentation
@@ -26,3 +30,6 @@
             - [ ] Installation process
             - [ ] Coonfiguration process
         - [ ] Create the container and configure it
+- [ ] Docker compose
+    - [ ] Compose.yml
+- [ ] Makefile
