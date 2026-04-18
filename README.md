@@ -174,9 +174,26 @@ You can also run the following command to activate the changes to groups:
  docker run hello-world
 ```
 
+## NGINX Setup
+
+NGINX ("engine x") is an HTTP web server, reverse proxy, content cache, load 
+balancer, TCP/UDP proxy server, and mail proxy server.
+
+Full guide [here](/docs/nginx-guide.md)
+
+### Installation
+
+```
+sudo apt update
+sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
+sudo apt install nginx
+```
+
+
 ## Resources
 - [Oracle VirtualBox](https://www.virtualbox.org/)
 - [Oracle VirtualBox - User guide](https://www.virtualbox.org/manual/)
 - [Debian 13.4 Image](https://www.debian.org/releases/trixie/debian-installer/)
 - [Docker installation guide](https://docs.docker.com/engine/install/debian/#install-using-the-repository)
+- [NGINX - Beginner's guide](https://nginx.org/en/docs/beginners_guide.html)
 
