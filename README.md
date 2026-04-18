@@ -13,7 +13,7 @@
 4. [NGINX setup](#nginx)
     1. [Installation](#nginx_install)
     2. [Configuration](#nginx_config)
-4. [Resources](#res)
+5. [Resources](#res)
 
 ## Project rules and objectives <a name="intro"></a>
 
