@@ -1,13 +1,28 @@
 # Inception
 
-[Subject](/docs/inception-en.subject.pdf)
+## Index:
+1. [Project rules and objectives](#intro)
+    1. [Main objective](#objective)
+    2. [Rules](#rules)
+    3. [Infraestructure](#infra)
+    4. [File structure](#files)
+2. [Virtual Macine setup](#vm)
+3. [Docker setup](#docker)
+    1. [Installation](#docker_install)
+    2. [Post-installation](#docker_post_install)
+4. [NGINX setup](#nginx)
+    1. [Installation](#nginx_install)
+    2. [Configuration](#nginx_config)
+4. [Resources](#res)
 
-## Project rules and objectives
+## Project rules and objectives <a name="intro"></a>
 
-### Main objective:
+- [Subject](/docs/inception-en.subject.pdf)
+
+### Main objective: <a name="objective"></a>
 Build a little infrastructure with different services using docker
 
-### Rules:
+### Rules: <a name="rules"></a>
 - Work in a Virtual Machine
 - Each service must be contained in a docker container named as the service
 - Every container must be based on a clean Alpine or Debian image
@@ -20,7 +35,7 @@ Build a little infrastructure with different services using docker
 - You should only be able to acces the infraestructure through NGINX
     - NGINX must be accesible through the port 443
 
-### Infrastructure
+### Infrastructure <a name="infra"></a>
 #### Containers
 - NGINX (TLS 1.2 or 1.3)
 - Wordpress + PHP-fpm
@@ -47,7 +62,7 @@ Build a little infrastructure with different services using docker
 
 ![Visual scheme](/res/inception_scheme.png)
 
-### File structure
+### File structure <a name="files"></a>
 ```
 Project Folder
 ├── Makefile
@@ -75,7 +90,7 @@ Project Folder
 
 ``` 
 
-## Virtual Machine setup
+## Virtual Machine setup <a name="vm"></a>
 1. Install VirtualBox if it is not installed
 2. Open a Virtual Machine based on Debian 13.4 ISO
 3. Config the VM OS:
@@ -106,9 +121,9 @@ Project Folder
 6. Once the VM is configured as you want it shut it down and export it from 
     the file menu in VirtualBox
 
-## Docker setup
+## Docker setup <a name="docker"></a>
 
-### Installation
+### Installation <a name="docker_install"></a>
 
 1. Setup Docker's apt repository:
 ```
@@ -153,7 +168,7 @@ Verify that the installation is successful by running the hello-world image:
 This command downloads a test image and runs it in a container. 
 When the container runs, it prints a confirmation message and exits.
 
-### Post-installation
+### Post-installation <a name="docker_post_install"></a>
 1. Add your user to the docker group.
 ```
 sudo usermod -aG docker $USER
@@ -174,14 +189,14 @@ You can also run the following command to activate the changes to groups:
  docker run hello-world
 ```
 
-## NGINX Setup
+## NGINX Setup <a name="nginx"></a>
 
 NGINX ("engine x") is an HTTP web server, reverse proxy, content cache, load 
 balancer, TCP/UDP proxy server, and mail proxy server.
 
 Full guide [here](/docs/nginx-guide.md)
 
-### Installation
+### Installation <a name="nginx_install"></a>
 
 ```
 sudo apt update
@@ -189,7 +204,7 @@ sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
 sudo apt install nginx
 ```
 
-### Configuration
+### Configuration <a name="nginx_config"></a>
 
 #### Control signals (start, stop, reload ...)
 ```
@@ -253,7 +268,7 @@ server {
 }
 ```
 
-## Resources
+## Resources <a name="res"></a>
 - [Oracle VirtualBox](https://www.virtualbox.org/)
 - [Oracle VirtualBox - User guide](https://www.virtualbox.org/manual/)
 - [Debian 13.4 Image](https://www.debian.org/releases/trixie/debian-installer/)
