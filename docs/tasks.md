@@ -1,19 +1,20 @@
-- [ ] Setup VM
+- [x] Setup VM
 - [ ] Docker
-    - [ ] Setup
+    - [x] Setup
+    - [x] Basics
     - [ ] Dockerfiles
+    - [ ] Docker compose
 - [ ] Create and configure each container
     - [ ] NGINX
-        - [ ] Search and Read Documentation
         - [ ] Summarize basic info 
             - [x] What is NGINX
             - [x] Installation process
-            - [x] Coonfiguration process
+            - [x] Basic working test
+            - [ ] Coonfiguration process
             - [ ] TLS
-            - [ ] Dockerfile
         - [ ] Create the container and configure it
+            - [ ] Dockerfile
     - [ ] Wordpress + PHP
-        - [ ] Search and Read Documentation
         - [ ] Summarize basic info and config proccces
             - [ ] What is Wordpress
             - [ ] Installation process
@@ -24,7 +25,6 @@
             - [ ] Wordpress and PHP correlation
         - [ ] Create the container and configure it
     - [ ] MariaDB
-        - [ ] Search and Read Documentation
         - [ ] Summarize basic info and config proccces
             - [ ] What is MariaDB
             - [ ] Installation process
