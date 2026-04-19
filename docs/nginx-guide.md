@@ -193,7 +193,79 @@ FastCGI protocol.
 > In PHP, the SCRIPT_FILENAME parameter is used for determining the script name, 
 > and the QUERY_STRING parameter is used to pass request parameters.
 
+## TLS - Making HTTP secure (HTTPS)
+Transport Layer Security (TLS) is a protocol which enables a client to 
+communicate securely with a server across an untrusted network. 
+Most notably it's used to secure HTTP connections on the web: 
+the resulting protocol is called HTTPS.
+All websites should serve all their pages and subresources over HTTPS, 
+and implement server authentication.
+
+### How to configure HTTPS server
+To configure an HTTPS server, the ssl parameter must be enabled on listening 
+sockets in the server block, and the locations of the server certificate 
+and private key files should be specified:
+```
+server {
+    listen              443 ssl;
+    server_name         www.example.com;
+    ssl_certificate     www.example.com.crt;
+    ssl_certificate_key www.example.com.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ...
+}
+```
+> [!WARNING]
+> The private key is a secure entity and should be stored in a file with 
+> restricted access, however, it must be readable by nginx’s master process.
+
+The directives `ssl_protocols` and `ssl_ciphers` can be used to limit connections 
+to include only the strong versions and ciphers of SSL/TLS.
+> [!NOTE]
+> By default nginx uses “ssl_protocols TLSv1.2 TLSv1.3” and 
+> “ssl_ciphers HIGH:!aNULL:!MD5”, 
+> so configuring them explicitly is generally not needed.
+
+## SSL Certificates
+If you would like to use an SSL certificate to secure a service but you do not 
+require a CA-signed certificate, a valid (and free) solution is to sign your 
+own certificates.
+
+A common type of certificate that you can issue yourself is a self-signed certificate. 
+A self-signed certificate is a certificate that is signed with its own private key. 
+Self-signed certificates can be used to encrypt data just as well as CA-signed 
+certificates, but your users will be displayed a warning that says that the 
+certificate is not trusted by their computer or browser. 
+Therefore, self-signed certificates should only be used if you do not need to 
+prove your service’s identity to its users (e.g. non-production or non-public servers).
+
+### Generating an Self-Signed Certificate
+Use this method if you want to use HTTPS (HTTP over TLS), 
+and you do not require that your certificate be signed by a CA.
+
+This command creates a 2048-bit private key (domain.key) and a 
+self-signed certificate (domain.crt) from scratch:
+```
+openssl req \
+       -newkey rsa:2048 -nodes -keyout domain.key \
+       -x509 -days 365 -out domain.crt
+```
+Answer the CSR information prompt to complete the process.
+
+The -x509 option tells req to create a self-signed certificate. 
+The -days 365 option specifies that the certificate will be valid for 365 days.
+A temporary CSR is generated to gather information to associate with the certificate.
+
+> [!WARNING]
+> Never commit or upload your private key (.key) files to version control, 
+> container registries, or any public/shared location. 
+> Generate your certificates locally on each machine and keep your private key secure.
+
 ## References
 - [NGINX - Beginner's guide](https://nginx.org/en/docs/beginners_guide.html)
-- [TLS - Transport Layer Security](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security)
 - [NGINX - HTTPS server config](https://nginx.org/en/docs/http/configuring_https_servers.html)
+- [TLS - Transport Layer Security](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security)
+- [TLS Configuration](https://developer.mozilla.org/en-US/docs/Web/Security/Practical_implementation_guides/TLS)
+- [Open SSL Guide - Introduction to TLS](https://docs.openssl.org/master/man7/ossl-guide-tls-introduction/#name)
+- [Creating a SSL certificate with OpenSSL](https://www.digitalocean.com/community/tutorials/openssl-essentials-working-with-ssl-certificates-private-keys-and-csrs)
