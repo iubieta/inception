@@ -32,19 +32,28 @@ acting as a bridge between clients and backend servers
 > apt update
 >```
 
-#### Install dependencies
-
+Install dependencies
 ```
 apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
 ```
 
-#### Install NGINX
-
+Install NGINX
 ```
 apt install nginx
 ```
 
-## Configuration
+To test nginx you can start it with the command `nginx`. 
+After that you should be able to see the welcome page in `http://localhost`
+
+> [!NOTE]
+> - If you are running nginx in a docker container you mast link the port 80.
+> - If you are running it on a VM make sure the port is linked and substitute
+> localhost with the VM ip.
+
+## Configuration <a name="nginx_config"></a>
+The way nginx and its modules work is determined in the configuration file. 
+By default, the configuration file is named `nginx.conf` and placed in the 
+directory `/usr/local/nginx/conf`, `/etc/nginx`, or `/usr/local/etc/nginx`. 
 
 ### Control signals (start, stop, reload ...)
 To start nginx, run the executable file. Once nginx is started, it can be 
@@ -183,3 +192,8 @@ FastCGI protocol.
 > [!NOTE]
 > In PHP, the SCRIPT_FILENAME parameter is used for determining the script name, 
 > and the QUERY_STRING parameter is used to pass request parameters.
+
+## References
+- [NGINX - Beginner's guide](https://nginx.org/en/docs/beginners_guide.html)
+- [TLS - Transport Layer Security](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security)
+- [NGINX - HTTPS server config](https://nginx.org/en/docs/http/configuring_https_servers.html)

@@ -330,7 +330,18 @@ sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
 sudo apt install nginx
 ```
 
+To test nginx you can start it with the command `nginx`. 
+After that you should be able to see the welcome page in `http://localhost`
+
+> [!NOTE]
+> - If you are running nginx in a docker container you mast link the port 80.
+> - If you are running it on a VM make sure the port is linked and substitute
+> localhost with the VM ip.
+
 ### Configuration <a name="nginx_config"></a>
+The way nginx and its modules work is determined in the configuration file. 
+By default, the configuration file is named `nginx.conf` and placed in the 
+directory `/usr/local/nginx/conf`, `/etc/nginx`, or `/usr/local/etc/nginx`. 
 
 #### Control signals (start, stop, reload ...)
 ```
@@ -394,10 +405,23 @@ server {
 }
 ```
 
+### NGINX TLS configuration
+
+TLS is an acronym for Transport Layer Security. 
+Transport Layer Security (TLS) is a protocol which enables a client to 
+communicate securely with a server across an untrusted network. 
+Most notably it's used to secure HTTP connections on the web: 
+the resulting protocol is called HTTPS.
+All websites should serve all their pages and subresources over HTTPS, 
+and implement server authentication.
+
 ## Resources <a name="res"></a>
 - [Oracle VirtualBox](https://www.virtualbox.org/)
 - [Oracle VirtualBox - User guide](https://www.virtualbox.org/manual/)
 - [Debian 13.4 Image](https://www.debian.org/releases/trixie/debian-installer/)
 - [Docker installation guide](https://docs.docker.com/engine/install/debian/#install-using-the-repository)
+- [Docker basics](https://docs.docker.com/get-started/)
 - [NGINX - Beginner's guide](https://nginx.org/en/docs/beginners_guide.html)
+- [TLS - Transport Layer Security](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security)
+- [NGINX - HTTPS server config](https://nginx.org/en/docs/http/configuring_https_servers.html)
 
