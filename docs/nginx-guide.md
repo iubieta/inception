@@ -110,6 +110,8 @@ and location in server.
 
 The rest of a line after the # sign is considered a comment.
 
+## Basic uses
+
 ### Serving static content
 An important web server task is serving out files. 
 Depending on the request, files will be served from different local directories
