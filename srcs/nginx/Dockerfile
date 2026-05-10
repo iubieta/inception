@@ -1,11 +1,10 @@
 # dockerfile nginx
-FROM debian:latest
+FROM debian:bookworm-slim
 
-RUN apt update
-RUN apt install -y curl gnupg2 ca-certificates lsb-release debian-archive-keyring 
-RUN apt install -y nginx
+RUN apt-get update && \
+	apt install -y --no-install-recommends nginx && \
+	rm -rf /var/lib/apt/lists/*
 
-COPY ssl /etc/nginx/ssl
-COPY nginx.conf /etc/nginx/nginx.conf
+EXPOSE 443
 
 CMD ["nginx", "-g", "daemon off;"]
