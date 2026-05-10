@@ -405,15 +405,80 @@ server {
 }
 ```
 
-### NGINX TLS configuration
+### TLS configuration
 
-TLS is an acronym for Transport Layer Security. 
 Transport Layer Security (TLS) is a protocol which enables a client to 
 communicate securely with a server across an untrusted network. 
 Most notably it's used to secure HTTP connections on the web: 
 the resulting protocol is called HTTPS.
 All websites should serve all their pages and subresources over HTTPS, 
 and implement server authentication.
+
+#### Generating self-signed certificates
+If you would like to use an certificate to secure a service but you do not 
+require a CA-signed certificate, a valid (and free) solution is to sign your 
+own certificates.
+
+A common type of certificate that you can issue yourself is a self-signed 
+certificate.
+
+You can create a self signed certificate with this command:
+```
+mkdir -p ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout ssl/server.key \
+  -out ssl/server.crt \
+  -subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=login.42.fr"
+```
+
+#### Setting up SSL on NGINX
+In order to NGINX manage SSL certificates for our server we need to specify
+it's listening port for ssl, the server name, ssl_cerficate and key paths and 
+the TLS protocols
+```
+server {
+    listen 443 ssl;
+    server_name login.42.fr;
+
+    ssl_certificate     /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+}
+```
+
+> [!NOTE]
+> When using docker remember to expose the 443 port and 
+> add access to the ssl certificates with a volume in read-only mode
+>
+> If using a VM in NAT network mode you also need to redirect a port to the 443 
+
+#### Checking the https connection
+To check the https connection and ssl verification you can use the next command:
+```
+curl https://server_name
+```
+
+> [!NOTE]
+> If you want to test it out of the VM you will need to specify the port
+> ```
+> curl https://server_name:port
+> ```
+
+> [!WARNING]
+> With self-signed certificates the verification process will return an error
+> use the `-k` option to bypass the verification
+> ```
+> curl -k https://servername
+> ``` 
+
+You can ensure that you are using the correct TLS version with these commands:
+```
+# TLS 1.2/1.3 should work
+curl -v --tlsv1.2 --tls-max 1.2 -k https://localhost
+
+# TLS 1.0/1.1 should fail 
+curl -v --tlsv1.0 --tls-max 1.0 -k https://localhost
+```
 
 ## Resources <a name="res"></a>
 - [Oracle VirtualBox](https://www.virtualbox.org/)
