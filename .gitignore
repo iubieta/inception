@@ -1,2 +1,3 @@
 # .gitignore
 VM_backups/
+.env
