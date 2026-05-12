@@ -31,8 +31,8 @@ systemctl start mariadb
 > [!NOTE]
 > In docker there's no systemd so you need to run MariaDB manually.
 > You can do this with `mysqld` or `mysqld_safe`
-> - `mysqld` -> runs MariaDB
-> - `mysqld_safe` -> runs MariaDB and monitors it. If MariaDB crashes 
+>   - `mysqld` -> runs MariaDB
+>   - `mysqld_safe` -> runs MariaDB and monitors it. If MariaDB crashes 
 >   it will restart it automatically
 
 ## Configuration
@@ -46,24 +46,66 @@ You can do this running the security script
 ```
 sudo mariadb-secure-installation
 ```
-### Securing an installation on a non-interactive docker container
-This script is interactive so using it in docker doesn't make sense
-but you can replicate it with a bash script that connects to the server
-and executes some SQL sentences with some environment variables 
 
-#### secure-installtion.sh
-```bash
-#!/bin/sh
-# Start mariadb temporarily to secure it
-mysql
+> [!WARNING]
+> This script is interactive so using it in docker doesn't make sense
+> but you can replicate it with a bash script that connects to the server
+> and executes some SQL sentences with some environment variables 
 
-# Wait until it is up
-while ! mysqladmin ping --silent 2>/dev/null; do
+## Creating a MariaDB docker container
+
+### Dockerfile
+
+In the container Dockerfile we will add the basic installation commands with 
+the `-y` flag to automate the procces.
+
+After that we will use an `init.sh` script as entrypoint to make the needed 
+configurations and execute the mariadb server. For that we need to copy it 
+and give permissions.
+
+```Dockerfile
+# dockerfile mariadb
+FROM debian:bookworm-slim
+
+RUN apt-get update && \
+	apt-get install -y mariadb-server mariadb-client && \
+
+COPY init.sh /usr/local/bin
+RUN chmod +x /usr/local/bin/init.sh
+
+EXPOSE 3306
+
+ENTRYPOINT ["init.sh"]
+```
+
+### init.sh script
+
+1- First we will start a temporary mariadb instance with `mysqld` to check the 
+securarization. As docker containers run with root user and mariadb doesnt allow
+root initialization we must start it with `mysql` user and in order to follow
+with the script we will execute it in background with `&` 
+```
+mysqld --user=mysql &
+```
+
+> [!NOTE]
+> In a normal installation post installation scripts create folders needed for 
+> mariadb to run correctly as `/run/mysqld`. When installing it in docker this 
+> doesn't happen so we need to create them manually
+
+2- After that we will wait until we are sure it has been started correctly.
+We can check that with the `mysqladmin ping` command in loop:
+```
+while ! mysqladmin ping ; do
     sleep 1
 done
-
-# Check if it is secured and if not secure it 
-if mariadb -u root --silent 2>/dev/null; then
+```
+3- Once we know it is running we can try to connect to it with root user 
+and no password. If we can, that means the server is not secured so we must 
+run the queries to make it secure:
+```
+if mariadb -u root ; then
+	echo "init.sh: Server not secured. Starting securization..."
     mariadb -u root << EOF
     ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASS}';
     DELETE FROM mysql.user WHERE User='';
@@ -71,12 +113,51 @@ if mariadb -u root --silent 2>/dev/null; then
     DROP DATABASE IF EXISTS test;
     DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
     FLUSH PRIVILEGES;
-    EOF
+EOF
 fi
+```
+4- After that we can shut down the temporary instance and start a definitive one 
+in order to apply configuration changes
+```
+mysqladmin -u root -p"${DB_ROOT_PASS}" shutdown
+exec mysqld --user=mysql
+```
+
+#### Here is the whole script - init.sh
+```bash
+#!/bin/sh
+# Start mariadb temporarily to secure it
+echo "init.sh: Starting temporary mariadb instance..."
+mysqld --user=mysql &
+
+# Wait until it is up
+echo "init.sh: Waiting for it..."
+while ! mysqladmin ping ; do
+    sleep 1
+done
+
+echo "init.sh: Temporary mariadb instance STARTED"
+
+# Check if it is secured and if not secure it 
+echo "init.sh: Checking securization..."
+if mariadb -u root ; then
+	echo "init.sh: Server not secured. Starting securization..."
+    mariadb -u root << EOF
+    ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASS}';
+    DELETE FROM mysql.user WHERE User='';
+    DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+    DROP DATABASE IF EXISTS test;
+    DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+    FLUSH PRIVILEGES;
+EOF
+fi
+echo "init.sh: Server is SECURED"
 
 # Stop temporal instance and start the definitive one
-mysqladmin -u root -p ${DB_ROOT_PASS} shutdown
-exec mysqld
+echo "init.sh: Shutting down mariadb temporary instance..."
+mysqladmin -u root -p"${DB_ROOT_PASS}" shutdown
+echo "init.sh: Starting definitive instance..."
+exec mysqld --user=mysql
 ```
 
 You can define the `DB_ROOT_PASS` in a .env file
@@ -84,10 +165,35 @@ You can define the `DB_ROOT_PASS` in a .env file
 ## Verification
 You can verify the installation by connecting as root:Bash
 ```
-mariadb -u root -p
+mariadb -u root -p"password"
 ```
 Enter the root password you set during the secure installation.
 
+> [!NOTE]
+> To connect to a docker container we can use `docker exec`
+> ```
+> docker exec container-name mariadb -u root -p"PASSWORD"
+> ```
+
+Once connecter there are 3 points to check:
+1- There is no "test" database.
+```
+SHOW DATABASES;
+```
+2- There is no anonimous users and root is only in localhost:
+```
+SELECT User, Host FROM mysql.user;
+```
+3- Root has a password and you cant connect without it:
+```
+mariadb -u root
+# should fail
+```
+
+
 ## Sources
 - [MariaDB installation guide ](https://mariadb.com/docs/server/mariadb-quickstart-guides/installing-mariadb-server-guide)
+- [mariadbd options ](https://mariadb.com/docs/server/server-management/starting-and-stopping-mariadb/mariadbd-options)
+- [mariadbd-safe ](https://mariadb.com/docs/server/server-management/starting-and-stopping-mariadb/mariadbd-safe)
+- [MariaDB official docker image ](https://hub.docker.com/_/mariadb)
 

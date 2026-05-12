@@ -9,3 +9,10 @@ services:
       - ./nginx/conf.d/:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl:ro
 
+  mariadb:
+    image: iubieta/mariadb:latest
+    build: mariadb/
+    ports:
+      - 3306:3306
+    env_file:
+      - mariadb/.env

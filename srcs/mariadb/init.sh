@@ -1,14 +1,20 @@
 #!/bin/sh
 # Start mariadb temporarily to secure it
-mysqld &
+echo "init.sh: Starting temporary mariadb instance..."
+mysqld --user=mysql &
 
 # Wait until it is up
-while ! mysqladmin ping --silent 2>/dev/null; do
+echo "init.sh: Waiting for it..."
+while ! mysqladmin ping ; do
     sleep 1
 done
 
+echo "init.sh: Temporary mariadb instance STARTED"
+
 # Check if it is secured and if not secure it 
-if mariadb -u root --silent 2>/dev/null; then
+echo "init.sh: Checking securization..."
+if mariadb -u root ; then
+	echo "init.sh: Server not secured. Starting securization..."
     mariadb -u root << EOF
     ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASS}';
     DELETE FROM mysql.user WHERE User='';
@@ -18,7 +24,10 @@ if mariadb -u root --silent 2>/dev/null; then
     FLUSH PRIVILEGES;
 EOF
 fi
+echo "init.sh: Server is SECURED"
 
 # Stop temporal instance and start the definitive one
+echo "init.sh: Shutting down mariadb temporary instance..."
 mysqladmin -u root -p"${DB_ROOT_PASS}" shutdown
-exec mysqld
+echo "init.sh: Starting definitive instance..."
+exec mysqld --user=mysql
