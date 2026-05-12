@@ -480,6 +480,16 @@ curl -v --tlsv1.2 --tls-max 1.2 -k https://localhost
 curl -v --tlsv1.0 --tls-max 1.0 -k https://localhost
 ```
 
+#### Server name or domain setup
+To change the domain or server name you must define the ip related to that 
+domain on the `/etc/hosts` file of the machine from which you are trying to 
+make the connection to the server.
+```
+#/etc/hosts
+127.0.0.1   localhost
+127.0.0.1   server-name
+```
+
 ## Resources <a name="res"></a>
 - [Oracle VirtualBox](https://www.virtualbox.org/)
 - [Oracle VirtualBox - User guide](https://www.virtualbox.org/manual/)
