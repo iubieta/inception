@@ -190,6 +190,20 @@ mariadb -u root
 # should fail
 ```
 
+## Creating a Database
+
+MariaDB wouldnt make sense without a useful database so we will create one 
+and a user for it. 
+
+To automate that in docker we can add it to the `init.sh` script after the securization
+```
+mariadb -u root -p"${DB_ROOT_PASS}" << EOF
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+FLUSH PRIVILEGES;
+EOF
+```
 
 ## Sources
 - [MariaDB installation guide ](https://mariadb.com/docs/server/mariadb-quickstart-guides/installing-mariadb-server-guide)

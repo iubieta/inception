@@ -26,6 +26,16 @@ EOF
 fi
 echo "init.sh: Server is SECURED"
 
+# Create the db and user
+echo "init.sh: Creating database..."
+mariadb -u root -p"${DB_ROOT_PASS}" << EOF
+CREATE DATABASE IF NOT EXISTS ${DB_NAME};
+CREATE USER IF NOT EXISTS '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASS}';
+GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
+FLUSH PRIVILEGES;
+EOF
+echo "init.sh: Database created"
+
 # Stop temporal instance and start the definitive one
 echo "init.sh: Shutting down mariadb temporary instance..."
 mysqladmin -u root -p"${DB_ROOT_PASS}" shutdown
