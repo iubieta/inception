@@ -3,7 +3,7 @@ FROM debian:bookworm-slim
 
 RUN apt-get update && \
 	apt-get install -y --no-install-recommends php \
-	php-fpm php-mysql wget ca-certificates && \
+	php-fpm php-mysql mariadb-client wget ca-certificates && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN wget https://wordpress.org/latest.tar.gz && \
