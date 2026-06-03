@@ -1,3 +1,5 @@
+# TODO: gestionar volumenes de forma adecuada
+# montarlos fuera de srcs
 services:
   nginx:
     image: iubieta/nginx:latest
@@ -16,3 +18,11 @@ services:
       - 3306:3306
     env_file:
       - .env
+
+  wordpress:
+    image: iubieta/wordpress:latest
+    build: wordpress/
+    ports:
+      - 9000:9000
+    volumes:
+      - ./wordpress/data:/var/www/html
