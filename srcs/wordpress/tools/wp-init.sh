@@ -14,6 +14,7 @@ cd /var/www/html
 echo "wp-init.sh: checking wordpress installation..."
 if ! wp core is-installed --allow-root; then
 	echo "wp-init.sh: wordpress is not installed, intalling it now..."
+	wp core download --allow-root
 	
 	echo "wp-init.sh: creating the configuration file"
 	wp config create --allow-root \
@@ -22,7 +23,7 @@ if ! wp core is-installed --allow-root; then
     	--dbpass="${DB_PASS}" \
     	--dbhost="${DB_HOST}"
 
-	echo "wp-init.sh: creating the configuration file"
+	echo "wp-init.sh: installing wp cli"
 	wp core install --allow-root \
 		--url="${DOMAIN_NAME}" \
 		--title="${WP_TITLE}" \
@@ -35,3 +36,6 @@ if ! wp core is-installed --allow-root; then
 	    --allow-root --path=/var/www/html \
 	    --role=author \
 	    --user_pass="${WP_USER_PASS}"	
+fi
+
+exec php-fpm8.2 -F
