@@ -1,5 +1,17 @@
-# TODO: gestionar volumenes de forma adecuada
-# montarlos fuera de srcs
+volumes:
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/iubieta-/data/wordpress
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/iubieta-/data/mariadb
+
 services:
   nginx:
     image: iubieta/nginx:latest
@@ -8,13 +20,15 @@ services:
       - 443:443
     volumes:
       - ./nginx/ssl:/etc/nginx/ssl:ro
-      - ./wordpress/data:/var/www/html
+      - wordpress:/var/www/html
 
   mariadb:
     image: iubieta/mariadb:latest
     build: mariadb/
     ports:
       - 3306:3306
+    volumes:
+      - mariadb:/var/lib/mysql
     env_file:
       - .env
 
