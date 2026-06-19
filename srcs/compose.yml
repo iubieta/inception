@@ -26,3 +26,5 @@ services:
       - 9000:9000
     volumes:
       - ./wordpress/data:/var/www/html
+    env_file:
+      - .env
