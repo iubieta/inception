@@ -38,6 +38,6 @@ services:
     ports:
       - 9000:9000
     volumes:
-      - ./wordpress/data:/var/www/html
+      - wordpress:/var/www/html
     env_file:
       - .env
