@@ -19,8 +19,10 @@ services:
     ports:
       - 443:443
     volumes:
-      - ./nginx/ssl:/etc/nginx/ssl:ro
       - wordpress:/var/www/html
+    secrets:
+      - site_crt
+      - site_key
 
   mariadb:
     image: iubieta/mariadb:latest
@@ -31,6 +33,9 @@ services:
       - mariadb:/var/lib/mysql
     env_file:
       - .env
+    secrets:
+      - db_pass
+      - db_root_pass
 
   wordpress:
     image: iubieta/wordpress:latest
@@ -41,3 +46,20 @@ services:
       - wordpress:/var/www/html
     env_file:
       - .env
+    secrets:
+      - wp_user_pass
+      - wp_admin_pass
+
+secrets:
+  site_crt:
+    file: site.crt
+  site_key:
+    file: site.key
+  db_pass:
+    file: db_pass.txt
+  db_root_pass:
+    file: db_root_pass.txt
+  wp_user_pass:
+    file: wp_user_pass.txt
+  wp_admin_pass:
+    file: wp_admin_pass.txt
