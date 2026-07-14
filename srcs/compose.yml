@@ -47,19 +47,20 @@ services:
     env_file:
       - .env
     secrets:
+      - db_pass
       - wp_user_pass
       - wp_admin_pass
 
 secrets:
   site_crt:
-    file: site.crt
+    file: ../secrets/site.crt
   site_key:
-    file: site.key
+    file: ../secrets/site.key
   db_pass:
-    file: db_pass.txt
+    file: ../secrets/db_password.txt
   db_root_pass:
-    file: db_root_pass.txt
+    file: ../secrets/db_root_password.txt
   wp_user_pass:
-    file: wp_user_pass.txt
+    file: ../secrets/wp_user_password.txt
   wp_admin_pass:
-    file: wp_admin_pass.txt
+    file: ../secrets/wp_admin_password.txt

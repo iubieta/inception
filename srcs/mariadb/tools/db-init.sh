@@ -1,4 +1,10 @@
 #!/bin/sh
+#db-init.sh
+
+# Init env vars
+DB_PASS=$(cat /run/secrets/db_pass)
+DB_ROOT_PASS=$(cat /run/secrets/db_root_pass)
+
 # Start mariadb temporarily to secure it
 echo "init.sh: Starting temporary mariadb instance..."
 mysqld --user=mysql &

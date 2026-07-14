@@ -3,10 +3,5 @@ VM_backups/
 env
 
 # secretfiles
-site.crt
-site.key
-db_pass.txt
-db_root_pass.txt
-wp_user_pass.txt
-wp_admin_pass.txt
+/secrets/
 

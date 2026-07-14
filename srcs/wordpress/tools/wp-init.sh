@@ -1,6 +1,9 @@
 #!/bin/sh
-
 #wp-init.sh
+
+DB_PASS=$(cat /run/secrets/db_pass)
+WP_ADMIN_PASS=$(cat /run/secrets/wp_admin_pass)
+WP_USER_PASS=$(cat /run/secrets/wp_user_pass)
 
 # Wait until mariadb is running
 echo "wp-init.sh: Waiting for database..."
