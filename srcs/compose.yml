@@ -14,7 +14,7 @@ volumes:
 
 services:
   nginx:
-    image: iubieta/nginx:latest
+    image: iubieta-/nginx:1.0
     build: nginx/
     ports:
       - 443:443
@@ -25,7 +25,7 @@ services:
       - site_key
 
   mariadb:
-    image: iubieta/mariadb:latest
+    image: iubieta-/mariadb:1.0
     build: mariadb/
     ports:
       - 3306:3306
@@ -38,7 +38,7 @@ services:
       - db_root_pass
 
   wordpress:
-    image: iubieta/wordpress:latest
+    image: iubieta-/wordpress:1.0
     build: wordpress/
     ports:
       - 9000:9000
