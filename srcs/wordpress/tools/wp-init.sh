@@ -7,7 +7,7 @@ WP_USER_PASS=$(cat /run/secrets/wp_user_pass)
 
 # Wait until mariadb is running
 echo "wp-init.sh: Waiting for database..."
-while ! mysqladmin ping -h ${DB_HOST}; do
+while ! mysqladmin ping -h ${DB_HOST} -u"${DB_USER}" -p"${DB_PASS}"; do
     sleep 1
 done
 
