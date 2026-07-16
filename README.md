@@ -1,31 +1,29 @@
 # Inception
 
+_This project has been created as part of the 42 curriculum by iubieta-_
+
 ## Index:
-1. [Project rules and objectives](#intro)
+1. [Description](#intro)
     1. [Main objective](#objective)
     2. [Rules](#rules)
-    3. [Infraestructure](#infra)
+    3. [Infrastructure](#infra)
     4. [File structure](#files)
-2. [Virtual Macine setup](#vm)
-3. [Docker setup](#docker)
-    1. [Installation](#docker_install)
-    2. [Post-installation](#docker_post_install)
-4. [Docker basics](#docker_basics)
-    1. [Containers](#docker_containers)
-    2. [Images](#docker_images)
-    3. [Dockerfiles](#docker_dockerfiles)
-    4. [Docker compose](#docker_compose)
-5. [NGINX setup](#nginx)
-    1. [Installation](#nginx_install)
-    2. [Configuration](#nginx_config)
-5. [Resources](#res)
+2. [Instructions](#instructions)
+    1. [Virtual Machine setup](#vm)
+    2. [Docker setup](#docker)
+        1. [Installation](#docker_install)
+        2. [Post-installation](#docker_post_install)
+    3. [Secrets & environment variables](#secrets)
+    4. [Verifying the setup](#verify)
+3. [Resources](#res)
 
-## Project rules and objectives <a name="intro"></a>
+## Description <a name="intro"></a>
 
 - [Subject](/docs/inception-en.subject.pdf)
 
 ### Main objective: <a name="objective"></a>
-Build a little infrastructure with different services using docker
+Build a little infrastructure with 3 different services (nginx, mariadb and
+wordpress) using docker.
 
 ### Rules: <a name="rules"></a>
 - Work in a Virtual Machine
@@ -44,7 +42,7 @@ Build a little infrastructure with different services using docker
 #### Containers
 - NGINX (TLS 1.2 or 1.3)
 - Wordpress + PHP-fpm
-    - Must have 2 users. One of them being the admin 
+    - Must have 2 users. One of them being the admin
     but it cannot be named `admin` or similar
 - MariaDB
 > [!WARNING]
@@ -71,31 +69,39 @@ Build a little infrastructure with different services using docker
 ```
 Project Folder
 ├── Makefile
+├── docs/
+│   ├── env-and-secrets.md
+│   ├── docker-guide.md
+│   ├── nginx-guide.md
+│   ├── mariadb-guide.md
+│   └── wordpress-guide.md
 ├── secrets/
-│   ├── credentials.txt
 │   ├── db_password.txt
-│   └── db_root_password.txt
+│   ├── db_root_password.txt
+│   ├── wp_admin_password.txt
+│   ├── wp_user_password.txt
+│   ├── site.crt
+│   └── site.key
 └── srcs/
-    ├── docker-compose.yml
+    ├── compose.yml
     ├── .env
-    └── requirements/
-        ├── mariadb/
-        │   ├── conf
-        │   ├── Dockerfile
-        │   ├── .dockerignore
-        │   ├── tools
-        │   └── ...
-        ├── nginx
-        │   ├── conf
-        │   ├── Dockerfile
-        │   ├── .dockerignore
-        │   ├── tools
-        │   └── ...
-        └── ...
+    ├── .env.example
+    ├── mariadb/
+    │   ├── conf/
+    │   ├── Dockerfile
+    │   └── tools/
+    ├── nginx/
+    │   ├── conf/
+    │   ├── Dockerfile
+    │   └── tools/
+    └── wordpress/
+        ├── Dockerfile
+        └── tools/
 
-``` 
+```
 
-## Virtual Machine setup <a name="vm"></a>
+## Instructions <a name="instructions"></a>
+### Virtual Machine setup <a name="vm"></a>
 1. Install VirtualBox if it is not installed
 2. Open a Virtual Machine based on Debian 13.4 ISO
 3. Config the VM OS:
@@ -105,7 +111,7 @@ Project Folder
     su
     sudo visudo
     ```
-    Once in the sudoers config file, copy the root user config line and paste 
+    Once in the sudoers config file, copy the root user config line and paste
     it with the actual user
     ```
     # User privilege specification
@@ -119,16 +125,16 @@ Project Folder
     sudo systemctl start ssh`
     sudo systemctl status ssh`
     ```
-    - In VM config, in network set the setting to NAT and add a 
+    - In VM config, in network set the setting to NAT and add a
         port-forwarding from HOST:3022 to VM:22
 4. Connect to the VM via SSH: `ssh -p 3022 user@127.0.0.1`
 5. Add any other config that you want
-6. Once the VM is configured as you want it shut it down and export it from 
+6. Once the VM is configured as you want it shut it down and export it from
     the file menu in VirtualBox
 
-## Docker setup <a name="docker"></a>
+### Docker setup <a name="docker"></a>
 
-### Installation <a name="docker_install"></a>
+#### Installation <a name="docker_install"></a>
 
 1. Setup Docker's apt repository:
 ```
@@ -170,10 +176,10 @@ Verify that the installation is successful by running the hello-world image:
 ```
  sudo docker run hello-world
 ```
-This command downloads a test image and runs it in a container. 
+This command downloads a test image and runs it in a container.
 When the container runs, it prints a confirmation message and exits.
 
-### Post-installation <a name="docker_post_install"></a>
+#### Post-installation <a name="docker_post_install"></a>
 1. Add your user to the docker group.
 ```
 sudo usermod -aG docker $USER
@@ -181,7 +187,7 @@ sudo usermod -aG docker $USER
 2. Log out and log back in so that your group membership is re-evaluated.
 
 > [!WARNING]
-> If you're running Linux in a virtual machine, 
+> If you're running Linux in a virtual machine,
 > it may be necessary to restart the virtual machine for changes to take effect.
 
 You can also run the following command to activate the changes to groups:
@@ -194,301 +200,86 @@ You can also run the following command to activate the changes to groups:
  docker run hello-world
 ```
 
-## Docker basics <a name="docker_basics"></a>
+### Secrets & environment variables <a name="secrets"></a>
 
-### Containers <a name="docker_containers"></a> 
+The services need some delicate info as well as defined users and passwords.
+This configuration is split in two places. Info that is not confidential,
+such as the DB name or usernames, is defined in a `.env` file as environment
+variables that are later read by the containers. Confidential info, such as
+passwords or the TLS certificate/key, is handled as Docker secrets, mounted
+at runtime under `/run/secrets/<name>` inside each container and never
+exposed as an environment variable.
 
-#### What is a Container?
-Containers are isolated processes for each of your app's components. 
-Each component - the frontend React app, the Python API engine, and the 
-database - runs in its own isolated environment, completely isolated from 
-sverything else on your machine.
+Full reference of every variable and secret needed, plus the commands to
+regenerate `secrets/` from scratch on a new machine, is in
+[env-and-secrets.md](/docs/env-and-secrets.md).
 
-#### Using containers (CLI)
-- To start a container use `docker run`
-    ```
-    docker run -d -p 8080:80 docker/welcome-to-docker
-    ```
-
-- You can monitor active containers with `docker ps`
-    ```
-    docker ps
-    ```
-> [!TIP]
-> To view stopped containers, add the -a flag to list all containers:
-> ```
-> docker ps -a
-> ```
-
-- You can stop a container using the `docker stop` command.
-    1. Run docker ps to get the ID of the container
-    2. Provide the container ID or name to the docker stop command:
-        ```
-        docker stop <the-container-id>
-        ```
-### Images <a name="docker_images"></a>
-
-#### What is an image?
-A container image is a standardized package that includes all of the files, 
-binaries, libraries, and configurations to run a container.
-
-#### Using images (CLI)
-- Search for images using the `docker search` command:
-    ```
-    docker search docker/welcome-to-docker
-    ```
-
-- Pull the image using the docker pull command.
-    ```
-    docker pull docker/welcome-to-docker
-    ```
-
-- List your downloaded images using the docker image ls command:
-    ```
-    docker image ls
-    ```
-
-- List the image's layers using the docker image history command:
-    ```
-    docker image history docker/welcome-to-docker
-    ```
-
-### Dockerfiles <a name="docker_dockerfiles"></a>
-
-#### What is a dockerfile?
-A Dockerfile is a text-based document that's used to create a container image. 
-It provides instructions to the image builder on the commands to run, 
-files to copy, startup command, and more.
-
-#### Common instructions
-Some of the most common instructions in a Dockerfile include:
-- `FROM <image>` - this specifies the base image that the build will extend.
-- `WORKDIR <path>` - this instruction specifies the "working directory" or the path
-in the image where files will be copied and commands will be executed.
-- `COPY <host-path> <image-path>` - this instruction tells the builder to copy files
-from the host and put them into the container image.
-- `RUN <command>` - this instruction tells the builder to run the specified command.
-- `ENV <name>` <value> - this instruction sets an environment variable that a 
-running container will use.
-- `EXPOSE <port-number>` - this instruction sets configuration on the image that 
-indicates a port the image would like to expose.
-- `USER <user-or-uid>`  - this instruction sets the default user for all subsequent 
-instructions.
-- `CMD ["<command>", "<arg1>"]`- this instruction sets the default command a 
-container using this image will run.
-
-
-### Docker Compose <a name="docker_compose"></a>
-
-#### What is Docker Compose?
-Docker compose is a tool to run and control multi-container applications.
-
-With Docker Compose, you can define all of your containers and their 
-configurations in a single YAML file. 
-If you include this file in your code repository, anyone that clones your 
-repository can get up and running with a single command
-
-#### Using docker compose (CLI)
-- `compose.yaml` file:
-    This YAML file is where all the magic happens! It defines all the services 
-    that make up your application, along with their configurations. 
-    Each service specifies its image, ports, volumes, networks, and any other 
-    settings necessary for its functionality
-
-- Use the `docker compose up` command to start the application:
-    ```
-    docker compose up -d --build
-    ```
-> [!NOTE]
-> - `-d` flags runs the containers in detached mode
-> - `--build` force the containers image buil based on specified dockerfiles
-
-- Use the `docker compose down` command to remove everything:
-    ```
-    docker compose down
-    ```
-    
-> [!NOTE]
-> **Volume persistence** 
-> By default, volumes aren't automatically removed when you tear down a 
-> Compose stack. 
-> If you do want to remove the volumes, add the `--volumes` flag when running 
-> the `docker compose down` command
-
-## NGINX Setup <a name="nginx"></a>
-
-NGINX ("engine x") is an HTTP web server, reverse proxy, content cache, load 
-balancer, TCP/UDP proxy server, and mail proxy server.
-
-Full guide [here](/docs/nginx-guide.md)
-
-### Installation <a name="nginx_install"></a>
-
-```
-sudo apt update
-sudo apt install curl gnupg2 ca-certificates lsb-release debian-archive-keyring
-sudo apt install nginx
-```
-
-To test nginx you can start it with the command `nginx`. 
-After that you should be able to see the welcome page in `http://localhost`
-
-> [!NOTE]
-> - If you are running nginx in a docker container you mast link the port 80.
-> - If you are running it on a VM make sure the port is linked and substitute
-> localhost with the VM ip.
-
-### Configuration <a name="nginx_config"></a>
-The way nginx and its modules work is determined in the configuration file. 
-By default, the configuration file is named `nginx.conf` and placed in the 
-directory `/usr/local/nginx/conf`, `/etc/nginx`, or `/usr/local/etc/nginx`. 
-
-#### Control signals (start, stop, reload ...)
-```
-nginx -s signal
-```
-
-Where signal may be one of the following:
-
-```
-stop — fast shutdown
-quit — graceful shutdown
-reload — reloading the configuration file
-reopen — reopening the log files
-```
-
-Changes made in the configuration file will not be applied until the command 
-to reload configuration is sent to nginx or it is restarted. 
-
-```
-nginx -s reload
-```
-
-#### Static content example
-```
-server {
-    location / {
-        root /data/www;
-    }
-
-    location /images/ {
-        root /data;
-    }
-}
-```
-
-#### Simple Proxy Server example
-```
-server {
-    location / {
-        proxy_pass http://localhost:8080/;
-    }
-
-    location ~ \.(gif|jpg|png)$ {
-        root /data/images;
-    }
-}
-```
-
-#### FastCGI Proxying example
-```
-server {
-    location / {
-        fastcgi_pass  localhost:9000;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param QUERY_STRING    $query_string;
-    }
-
-    location ~ \.(gif|jpg|png)$ {
-        root /data/images;
-    }
-}
-```
-
-### TLS configuration
-
-Transport Layer Security (TLS) is a protocol which enables a client to 
-communicate securely with a server across an untrusted network. 
-Most notably it's used to secure HTTP connections on the web: 
-the resulting protocol is called HTTPS.
-All websites should serve all their pages and subresources over HTTPS, 
-and implement server authentication.
-
-#### Generating self-signed certificates
-If you would like to use an certificate to secure a service but you do not 
-require a CA-signed certificate, a valid (and free) solution is to sign your 
-own certificates.
-
-A common type of certificate that you can issue yourself is a self-signed 
-certificate.
-
-You can create a self signed certificate with this command:
-```
-mkdir -p ssl
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-  -keyout ssl/server.key \
-  -out ssl/server.crt \
-  -subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=login.42.fr"
-```
-
-#### Setting up SSL on NGINX
-In order to NGINX manage SSL certificates for our server we need to specify
-it's listening port for ssl, the server name, ssl_cerficate and key paths and 
-the TLS protocols
-```
-server {
-    listen 443 ssl;
-    server_name login.42.fr;
-
-    ssl_certificate     /etc/nginx/ssl/server.crt;
-    ssl_certificate_key /etc/nginx/ssl/server.key;
-    ssl_protocols       TLSv1.2 TLSv1.3;
-}
-```
-
-> [!NOTE]
-> When using docker remember to expose the 443 port and 
-> add access to the ssl certificates with a volume in read-only mode
->
-> If using a VM in NAT network mode you also need to redirect a port to the 443 
-
-#### Checking the https connection
-To check the https connection and ssl verification you can use the next command:
-```
-curl https://server_name
-```
-
-> [!NOTE]
-> If you want to test it out of the VM you will need to specify the port
-> ```
-> curl https://server_name:port
-> ```
-
-> [!WARNING]
-> With self-signed certificates the verification process will return an error
-> use the `-k` option to bypass the verification
-> ```
-> curl -k https://servername
-> ``` 
-
-You can ensure that you are using the correct TLS version with these commands:
-```
-# TLS 1.2/1.3 should work
-curl -v --tlsv1.2 --tls-max 1.2 -k https://localhost
-
-# TLS 1.0/1.1 should fail 
-curl -v --tlsv1.0 --tls-max 1.0 -k https://localhost
-```
+Before building, make sure `srcs/.env` (copy it from `srcs/.env.example`) and
+the 6 files under `secrets/` exist — `make check-env` will refuse to build
+otherwise.
 
 #### Server name or domain setup
-To change the domain or server name you must define the ip related to that 
-domain on the `/etc/hosts` file of the machine from which you are trying to 
+To change the domain or server name you must define the ip related to that
+domain on the `/etc/hosts` file of the machine from which you are trying to
 make the connection to the server.
 ```
 #/etc/hosts
 127.0.0.1   localhost
 127.0.0.1   server-name
 ```
+
+### Verifying the setup <a name="verify"></a>
+
+Once `make` (or `make up`) finishes, use this checklist to confirm everything
+is actually working, not just that the build didn't error out:
+
+1. **Containers up and stable**
+    ```
+    make ps
+    ```
+    All three (`nginx`, `mariadb`, `wordpress`) should be `Up`/`running`.
+
+2. **No errors in the logs**
+    ```
+    make logs
+    ```
+
+3. **Volumes actually populated**
+    ```
+    ls /home/user/data/wordpress   # wp-config.php, wp-content, etc.
+    ls /home/user/data/mariadb     # ibdata1, etc.
+    ```
+
+4. **HTTPS access works**
+    ```
+    curl -vk https://server-name
+    ```
+    (`-k` because the certificate is self-signed). Should return WordPress'
+    HTML.
+
+5. **Only TLS 1.2/1.3 are accepted**
+    ```
+    openssl s_client -connect server-name:443 -tls1_1
+    ```
+    This must fail. With `-tls1_2` it must connect.
+
+6. **NGINX is the only reachable entrypoint**
+    ```
+    curl http://localhost:3306   # must fail / connection refused
+    curl http://localhost:9000   # must fail / connection refused
+    ```
+
+7. **WordPress login**
+    Log in at `https://server-name/wp-admin` with both the admin user and the
+    second user, and confirm the second one has a restricted menu (no
+    Plugins/Users/Settings).
+
+8. **Persistence**
+    ```
+    make down
+    make up
+    ```
+    Confirm WordPress still has your data (it isn't reinstalled from scratch).
 
 ## Resources <a name="res"></a>
 - [Oracle VirtualBox](https://www.virtualbox.org/)
@@ -499,4 +290,7 @@ make the connection to the server.
 - [NGINX - Beginner's guide](https://nginx.org/en/docs/beginners_guide.html)
 - [TLS - Transport Layer Security](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security)
 - [NGINX - HTTPS server config](https://nginx.org/en/docs/http/configuring_https_servers.html)
-
+- [Docker - basic user guide](/docs/docker-guide.md)
+- [NGINX - basic user guide](/docs/nginx-guide.md)
+- [MariaDB - basic user guide](/docs/mariadb-guide.md)
+- [Wordpress - basic user guide](/docs/wordpress-guide.md)
