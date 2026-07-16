@@ -1,3 +1,7 @@
+networks:
+  inception:
+    driver: bridge
+
 volumes:
   wordpress:
     driver: local
@@ -5,6 +9,7 @@ volumes:
       type: none
       o: bind
       device: /home/iubieta-/data/wordpress
+  
   mariadb:
     driver: local
     driver_opts:
@@ -16,6 +21,8 @@ services:
   nginx:
     image: iubieta-/nginx:1.0
     build: nginx/
+    networks:
+        - inception
     ports:
       - 443:443
     volumes:
@@ -23,12 +30,13 @@ services:
     secrets:
       - site_crt
       - site_key
+    restart: unless-stopped
 
   mariadb:
     image: iubieta-/mariadb:1.0
     build: mariadb/
-    ports:
-      - 3306:3306
+    networks:
+        - inception
     volumes:
       - mariadb:/var/lib/mysql
     env_file:
@@ -36,12 +44,13 @@ services:
     secrets:
       - db_pass
       - db_root_pass
+    restart: unless-stopped
 
   wordpress:
     image: iubieta-/wordpress:1.0
     build: wordpress/
-    ports:
-      - 9000:9000
+    networks:
+        - inception
     volumes:
       - wordpress:/var/www/html
     env_file:
@@ -50,6 +59,7 @@ services:
       - db_pass
       - wp_user_pass
       - wp_admin_pass
+    restart: unless-stopped
 
 secrets:
   site_crt:
