@@ -19,7 +19,7 @@ volumes:
 
 services:
   nginx:
-    image: iubieta-/nginx:1.0
+    image: iubieta/nginx:1.0
     build: nginx/
     networks:
         - inception
@@ -33,7 +33,7 @@ services:
     restart: unless-stopped
 
   mariadb:
-    image: iubieta-/mariadb:1.0
+    image: iubieta/mariadb:1.0
     build: mariadb/
     networks:
         - inception
@@ -47,7 +47,7 @@ services:
     restart: unless-stopped
 
   wordpress:
-    image: iubieta-/wordpress:1.0
+    image: iubieta/wordpress:1.0
     build: wordpress/
     networks:
         - inception
