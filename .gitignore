@@ -1,6 +1,6 @@
 # .gitignore
 VM_backups/
-env
+.env
 
 # secretfiles
 /secrets/
