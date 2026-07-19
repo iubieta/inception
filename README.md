@@ -15,7 +15,12 @@ _This project has been created as part of the 42 curriculum by iubieta-_
         2. [Post-installation](#docker_post_install)
     3. [Secrets & environment variables](#secrets)
     4. [Verifying the setup](#verify)
-3. [Resources](#res)
+3. [Comparisons](#comparisons)
+    1. [VM vs Docker](#vm_vs_docker)
+    2. [Secrets vs Env vars](#secrets_vs_env)
+    3. [Docker network vs Host network](#network_vs_host)
+    4. [Volumes vs Bind mounts](#volumes_vs_bind)
+4. [Resources](#res)
 
 ## Description <a name="intro"></a>
 
@@ -281,12 +286,74 @@ is actually working, not just that the build didn't error out:
     ```
     Confirm WordPress still has your data (it isn't reinstalled from scratch).
 
+## Comparisons <a name="comparisons"></a>
+
+### VM vs Docker <a name="vm_vs_docker"></a>
+A Virtual Machine virtualizes a whole PC inside it, including the kernel, 
+that means it needs to have direct access to part of the system's memory and 
+storage. This is heavier and slower but gives full isolation from the host.
+On the other side, Docker containers only isolates the process, filesystem 
+and network layers making them much lighter, faster and easy to reproduce.
+In this project we use the VM to isolate the host from the evaluator's machine 
+and Docker to build the different services and isolate them from each other.
+
+### Secrets vs Env vars <a name="secrets_vs_env"></a>
+Environment variables (`.env` / `env_file`) are stored as plain text and visible 
+from the inside and outside of the container; that is why they are not meant to 
+be used for confidential information such as passwords or keys/certificates.
+For that purpose Docker Secrets should be used. These are files mounted only at 
+runtime inside the container as `/run/secrets/<name>`, they are not exposed nor 
+written in the container image. Taking this into account is why in this project 
+there are some public configs such as hostnames or usernames defined as environment
+variables but others such as the passwords and TLS private key as secrets.
+For a better understanding of the project setup on this aspect see 
+[env-and-secrets.md](/docs/env-and-secrets.md)
+
+### Docker network vs Host network <a name="network_vs_host"></a>
+`network_mode: host` makes a container share the host's network directly, 
+with no isolation and no need for port mapping. However this also means
+any service running that way is as exposed as the host itself, which is why
+the subject forbids it. This project instead declares an explicit
+user-defined bridge network (`inception`) and attaches the three services to
+it: each container gets its own private IP, an embedded DNS server lets them
+resolve each other by service name (`mariadb`, `wordpress`), and only the
+ports explicitly published in `compose.yml` (443, on nginx) are reachable
+from outside; mariadb and wordpress are reachable only from other
+containers on that same network.
+
+There are other docker network possible configurations however they add too 
+much complexity for this case. You can read about Docker networks here: 
+[Docker Networking](https://docs.docker.com/engine/network/#drivers)
+
+### Volumes vs Bind mounts <a name="volumes_vs_bind"></a>
+Bind mounts link a host path directly to the container. They are fast and easy 
+to set up; however, they depend on the host completely, docker doesn't handle the 
+host's path, it's permissions or the existence itself. This is why the subject
+forbids using them and asks for Docker volumes instead. 
+Docker volumes are first-class objects they don't depend on the host nor any 
+specific container. However, the subject asks for the data to live in a certain 
+path and volumes automatically store it in `/var/lib/docker/volumes/...`; that's
+why we must configure the volume the next way:
+```yaml
+name:
+  driver: local
+  driver_opts:
+    type: none
+    o: bind
+    device: /home/user/data/name
+
+```
+Whith this we mount the volume with the bind option forcing the data to live 
+in the specified path.
+
+
 ## Resources <a name="res"></a>
 - [Oracle VirtualBox](https://www.virtualbox.org/)
 - [Oracle VirtualBox - User guide](https://www.virtualbox.org/manual/)
 - [Debian 13.4 Image](https://www.debian.org/releases/trixie/debian-installer/)
 - [Docker installation guide](https://docs.docker.com/engine/install/debian/#install-using-the-repository)
 - [Docker basics](https://docs.docker.com/get-started/)
+- [Docker engine manuals](https://docs.docker.com/engine/)
 - [NGINX - Beginner's guide](https://nginx.org/en/docs/beginners_guide.html)
 - [TLS - Transport Layer Security](https://developer.mozilla.org/en-US/docs/Web/Security/Defenses/Transport_Layer_Security)
 - [NGINX - HTTPS server config](https://nginx.org/en/docs/http/configuring_https_servers.html)
