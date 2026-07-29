@@ -21,6 +21,8 @@ services:
   nginx:
     image: iubieta/nginx:1.0
     build: requirements/nginx/
+    env_file:
+      - .env
     networks:
         - inception
     ports:
