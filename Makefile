@@ -1,4 +1,4 @@
-COMPOSE   = docker compose -f srcs/compose.yml
+COMPOSE   = docker compose -f srcs/docker-compose.yml
 DATA_DIR  = /home/iubieta-/data
 
 SECRET_FILES = db_password.txt db_root_password.txt \

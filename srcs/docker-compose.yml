@@ -20,7 +20,7 @@ volumes:
 services:
   nginx:
     image: iubieta/nginx:1.0
-    build: nginx/
+    build: requirements/nginx/
     networks:
         - inception
     ports:
@@ -34,7 +34,7 @@ services:
 
   mariadb:
     image: iubieta/mariadb:1.0
-    build: mariadb/
+    build: requirements/mariadb/
     networks:
         - inception
     volumes:
@@ -48,7 +48,7 @@ services:
 
   wordpress:
     image: iubieta/wordpress:1.0
-    build: wordpress/
+    build: requirements/wordpress/
     networks:
         - inception
     volumes:
