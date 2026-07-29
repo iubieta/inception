@@ -6,6 +6,7 @@ RUN apt-get update && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN rm -f /etc/nginx/sites-enabled/default
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 COPY conf/my_site.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 443
