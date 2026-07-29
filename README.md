@@ -1,6 +1,6 @@
-# Inception
-
 _This project has been created as part of the 42 curriculum by iubieta-_
+
+# Inception
 
 ## Index:
 1. [Description](#intro)
