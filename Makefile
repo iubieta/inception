@@ -5,7 +5,7 @@ SECRET_FILES = db_password.txt db_root_password.txt \
                wp_admin_password.txt wp_user_password.txt \
                site.crt site.key
 
-.PHONY: all build up down stop start restart logs ps clean fclean re check-env prepare
+.PHONY: all build up down stop start restart logs ps clean fclean re check-env prepare certs
 
 all: check-env prepare build up
 
@@ -16,7 +16,12 @@ check-env:
 	done
 	@echo "check-env: all good"
 
-prepare:
+DOMAIN_NAME := $(shell grep -s '^DOMAIN_NAME' srcs/.env | cut -d= -f2)
+
+certs:
+	DOMAIN_NAME="$(DOMAIN_NAME)" CERT_DIR=./secrets srcs/nginx/tools/cert-gen.sh
+
+prepare: certs
 	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
 
 build:
