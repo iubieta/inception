@@ -4,6 +4,7 @@
 DB_PASS=$(cat /run/secrets/db_pass)
 WP_ADMIN_PASS=$(cat /run/secrets/wp_admin_pass)
 WP_USER_PASS=$(cat /run/secrets/wp_user_pass)
+DOMAIN_NAME=$(echo "${DOMAIN_NAME}" | sed 's|https\?://||')
 
 # Wait until mariadb is running
 echo "wp-init.sh: Waiting for database..."
@@ -17,7 +18,6 @@ cd /var/www/html
 echo "wp-init.sh: checking wordpress installation..."
 if ! wp core is-installed --allow-root; then
 	echo "wp-init.sh: wordpress is not installed, intalling it now..."
-	wp core download --allow-root
 	
 	echo "wp-init.sh: creating the configuration file"
 	wp config create --allow-root \

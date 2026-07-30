@@ -1,5 +1,5 @@
 COMPOSE   = docker compose -f srcs/docker-compose.yml
-DATA_DIR  = /home/iubieta-/data
+DATA_DIR  = ~/data
 
 SECRET_FILES = db_password.txt db_root_password.txt \
                wp_admin_password.txt wp_user_password.txt \
@@ -55,7 +55,7 @@ clean: down
 	docker system prune -f
 
 fclean: clean
-	sudo rm -rf $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
+	rm -rf $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
 	docker volume prune -f
 
 re: fclean all

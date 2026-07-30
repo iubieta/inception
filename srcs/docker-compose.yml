@@ -8,14 +8,14 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/iubieta-/data/wordpress
+      device: ~/data/wordpress
   
   mariadb:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/iubieta-/data/mariadb
+      device: ~/data/mariadb
 
 services:
   nginx:
