@@ -10,16 +10,20 @@ SECRET_FILES = db_password.txt db_root_password.txt \
 all: check-env prepare build up
 
 check-env:
-	@test -f srcs/.env || (echo "Missing srcs/.env (copy it from srcs/.env.example)" && exit 1)
-	@for f in $(SECRET_FILES); do \
-		test -f secrets/$$f || (echo "Missing secrets/$$f (see docs/env-and-secrets.md)" && exit 1); \
-	done
+	@test -f srcs/.env || { echo "Missing srcs/.env (copy it from srcs/.env.example)"; exit 1; }
+	@SECRETS_FLAG=0; \
+	for f in $(SECRET_FILES); do \
+		test -f secrets/$$f || { echo "Missing secrets/$$f (see docs/env-and-secrets.md)"; SECRETS_FLAG=1; }; \
+	done; \
+	if [ $$SECRETS_FLAG -eq 1 ]; then \
+		exit 1; \
+	fi
 	@echo "check-env: all good"
 
 DOMAIN_NAME := $(shell grep -s '^DOMAIN_NAME' srcs/.env | cut -d= -f2)
 
 certs:
-	DOMAIN_NAME="$(DOMAIN_NAME)" CERT_DIR=./secrets srcs/nginx/tools/cert-gen.sh
+	DOMAIN_NAME="$(DOMAIN_NAME)" CERT_DIR=./secrets srcs/requirements/nginx/tools/cert-gen.sh
 
 prepare: certs
 	mkdir -p $(DATA_DIR)/wordpress $(DATA_DIR)/mariadb
